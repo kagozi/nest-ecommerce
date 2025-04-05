@@ -8,18 +8,21 @@ import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { Product } from './products/product.entity';
 import { Category } from './products/category.entity';
+import { OrdersModule } from './orders/orders.module';
+import { Order, OrderItem } from './orders/order.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'data.db',
-      entities: [User, Product, Category],
+      entities: [User, Product, Category, Order, OrderItem],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
-    ProductsModule],
+    ProductsModule,
+    OrdersModule],
   controllers: [AppController],
   providers: [AppService],
 })
