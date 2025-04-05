@@ -13,13 +13,16 @@ import { Order, OrderItem } from './orders/order.entity';
 import { InvoicesModule } from './invoices/invoices.module';
 import { CartModule } from './cart/cart.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { Cart, CartItem } from './cart/cart.entity';
+import { Review } from './reviews/review.entity';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'data.db',
-      entities: [User, Product, Category, Order, OrderItem],
+      entities: [User, Product, Category, Order, OrderItem, Cart, CartItem, Review],
       synchronize: true,
     }),
     UsersModule,
@@ -28,7 +31,8 @@ import { ReviewsModule } from './reviews/reviews.module';
     OrdersModule,
     InvoicesModule,
     CartModule,
-    ReviewsModule],
+    ReviewsModule,
+    WishlistModule],
   controllers: [AppController],
   providers: [AppService],
 })
