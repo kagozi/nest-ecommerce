@@ -12,6 +12,7 @@ import { OrdersModule } from './orders/orders.module';
 import { Order, OrderItem } from './orders/order.entity';
 import { InvoicesModule } from './invoices/invoices.module';
 import { CartModule } from './cart/cart.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { CartModule } from './cart/cart.module';
     ProductsModule,
     OrdersModule,
     InvoicesModule,
-    CartModule],
+    CartModule,
+    ReviewsModule],
   controllers: [AppController],
   providers: [AppService],
 })
