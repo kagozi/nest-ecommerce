@@ -1,11 +1,12 @@
 
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Req, BadRequestException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
+import { Not } from 'typeorm';
 
 @Controller('users')
 export class UsersController {
@@ -33,19 +34,14 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: Request) {
-    return req.user;
+    try {
+      return req.user;
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
+
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Patch('profile')
-  // async updateProfile(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-  //   const user = req.user;
-  //   // Ignore ts error
-  //   // @ts-ignore
-  //   await this.usersService.update(user.id, updateUserDto);
-  //   // @ts-ignore
-  //   return this.usersService.findOneByEmail(user.email);
-  // }
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
   async updateProfile(
@@ -63,8 +59,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Delete('profile')
   async deleteProfile(@Req() req: Request) {
-    const user = req.user;
-    // @ts-ignore
-    await this.usersService.remove(user.id);
+    try {
+      const user = req.user;
+      // @ts-ignore
+      await this.usersService.remove(user.id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
