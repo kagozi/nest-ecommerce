@@ -9,4 +9,20 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   profile?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
