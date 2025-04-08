@@ -1,0 +1,16 @@
+import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { User } from '../users/user.entity';
+import { Product } from '../products/product.entity';
+
+@Entity()
+export class Wishlist {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  // @ts-ignore
+  @ManyToOne(() => User, user => user.wishlist)
+  user: User;
+
+  @ManyToOne(() => Product, product => product.id)
+  product: Product;
+}
