@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { Category } from './category.entity';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { ApproveDTO, UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -21,27 +21,27 @@ export class ProductsService {
 
   async createProduct(createProductDto: CreateProductDto, userId: number): Promise<Product> {
     const { categoryId, ...rest } = createProductDto;
-  
+
     const category = await this.categoriesRepository.findOne({
       where: { id: categoryId },
     });
-  
+
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-  
+
     const user = await this.userService.findOneById(userId)
-  
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  
+
     const product = this.productsRepository.create({
       ...rest,
       category,
       user, // Add the user relationship
     });
-  
+
     return this.productsRepository.save(product);
   }
 
@@ -70,6 +70,12 @@ export class ProductsService {
       product.category = category;
     }
     Object.assign(product, rest);
+    return this.productsRepository.save(product);
+  }
+
+  async approveProduct(id: number, approveDTO: ApproveDTO): Promise<Product> {
+    const product = await this.findProductById(id);
+    Object.assign(product, approveDTO);
     return this.productsRepository.save(product);
   }
 
@@ -111,8 +117,10 @@ export class ProductsService {
     await this.categoriesRepository.remove(category);
   }
 
-  async searchProducts(query: string): Promise<Product[]> {
-    return this.productsRepository.createQueryBuilder('product')
+  async searchProducts(query: string): Promise<any> {
+    console.log({query:query})
+    // return query
+    return await this.productsRepository.createQueryBuilder('product')
       .where('product.name LIKE :query', { query: `%${query}%` })
       .orWhere('product.description LIKE :query', { query: `%${query}%` })
       .getMany();

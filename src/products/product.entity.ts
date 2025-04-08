@@ -29,6 +29,9 @@ export class Product {
   @Column()
   price: number;
 
+  @Column({nullable: true})
+  sellingPrice: number;
+
   @Column()
   sku: string;
 
@@ -38,7 +41,9 @@ export class Product {
   @Column({ nullable: true })
   coverPhoto: string;
 
-  @Column('text', { array: true, nullable: true })
+  // @Column('text', { array: true, nullable: true }) // This is for PostgreSQL
+  // images: string[];
+  @Column('json', { nullable: true })
   images: string[];
 
 
@@ -48,11 +53,15 @@ export class Product {
   @Column()
   categoryId: number;  // This will store the foreign key reference
 
-    // Add relationship to User
-    @ManyToOne(() => User, user => user.products)
-    @JoinColumn({ name: 'userId' })
-    user: User;
-  
-    @Column()
-    userId: number; // Foreign key to the user who created the product
+  // Add relationship to User
+  @ManyToOne(() => User, user => user.products)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column()
+  userId: number; // Foreign key to the user who created the product
+
+  @Column({ default: false })
+  isApproved: boolean; 
+
 }
