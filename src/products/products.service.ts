@@ -6,7 +6,8 @@ import { Category } from './category.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import {CreateProductDto} from './dto/create-product.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ProductsService {
@@ -15,18 +16,36 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
-  ) {}
+    private userService: UsersService, // Inject the UsersService
+  ) { }
 
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+  async createProduct(createProductDto: CreateProductDto, userId: number): Promise<Product> {
     const { categoryId, ...rest } = createProductDto;
-    const category = await this.categoriesRepository.findOne({ where: { id: categoryId } });
+  
+    const category = await this.categoriesRepository.findOne({
+      where: { id: categoryId },
+    });
+  
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-    const product = this.productsRepository.create(createProductDto);
+  
+    const user = await this.userService.findOneById(userId)
+  
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    const product = this.productsRepository.create({
+      ...rest,
+      category,
+      user, // Add the user relationship
+    });
+  
     return this.productsRepository.save(product);
   }
-  
+
+
 
   async findAllProducts(): Promise<Product[]> {
     return this.productsRepository.find({ relations: ['category'] });
@@ -75,7 +94,7 @@ export class ProductsService {
     }
     return category;
   }
-  
+
 
   async updateCategory(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     console.log({

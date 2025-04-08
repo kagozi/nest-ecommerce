@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { UserRole } from './dto/create-user.dto';
+import { Product } from '../products/product.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -25,4 +26,7 @@ export class User {
 
   @Column({ default: '' })
   profile: string;
+
+  @OneToMany(() => Product, product => product.user)
+  products: Product[];
 }
