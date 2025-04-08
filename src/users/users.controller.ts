@@ -6,7 +6,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
-import { Not } from 'typeorm';
 
 @Controller('users')
 export class UsersController {

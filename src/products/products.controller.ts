@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 @Controller('products')
 export class ProductsController {
@@ -29,11 +32,14 @@ export class ProductsController {
     return this.productsService.updateProduct(id, updateProductDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   removeProduct(@Param('id') id: number) {
     return this.productsService.removeProduct(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post('categories')
   createCategory(@Body() createCategoryDto: CreateCategoryDto) {
     return this.productsService.createCategory(createCategoryDto);
@@ -49,9 +55,13 @@ export class ProductsController {
     return this.productsService.findCategoryById(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Patch('categories/:id')
-  updateCategory(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.productsService.updateCategory(id, updateCategoryDto);
+  updateCategory(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    // Parse id to number
+    const numericId = parseInt(id);
+    return this.productsService.updateCategory(numericId, updateCategoryDto);
   }
 
   @Delete('categories/:id')

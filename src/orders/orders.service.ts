@@ -37,7 +37,7 @@ export class OrdersService {
       const orderItem = this.orderItemsRepository.create({
         product,
         quantity: item.quantity,
-        price: product.price * item.quantity,
+        price: product.price.amount * item.quantity,
       });
       orderItems.push(orderItem);
       total += orderItem.price;

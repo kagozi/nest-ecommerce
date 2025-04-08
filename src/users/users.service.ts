@@ -60,4 +60,13 @@ export class UsersService {
     }
     return user;
   }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {    
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.update(user.id, { password: hashedPassword });
+  }
 }

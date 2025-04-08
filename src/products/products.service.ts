@@ -23,9 +23,10 @@ export class ProductsService {
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-    const product = this.productsRepository.create({ ...rest, category });
+    const product = this.productsRepository.create(createProductDto);
     return this.productsRepository.save(product);
   }
+  
 
   async findAllProducts(): Promise<Product[]> {
     return this.productsRepository.find({ relations: ['category'] });
@@ -68,16 +69,19 @@ export class ProductsService {
   }
 
   async findCategoryById(id: number): Promise<Category> {
-    // @ts-ignore
-    // const category = await this.categoriesRepository.findOne({ where: { id }, relations: ['products'] });
-    const category = await this.categoriesRepository.findOne(id, { relations: ['products'] });
+    const category = await this.categoriesRepository.findOne({ where: { id } });
     if (!category) {
-      throw new NotFoundException('Category not found');
+      throw new NotFoundException(`Category with id ${id} not found`);
     }
     return category;
   }
+  
 
   async updateCategory(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+    console.log({
+      id,
+      updateCategoryDto
+    })
     const category = await this.findCategoryById(id);
     Object.assign(category, updateCategoryDto);
     return this.categoriesRepository.save(category);
