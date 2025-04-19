@@ -53,11 +53,10 @@ export class CartService {
 
   async updateItem(userId: number, cartItemId: number, updateCartItemDto: UpdateCartItemDto): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
-    const cartItem = cart.items.find(item => item.id === cartItemId);
+    const cartItem = cart.items.find(item => item.id == cartItemId);
     if (!cartItem) {
       throw new NotFoundException('Cart item not found');
     }
-
     cartItem.quantity = updateCartItemDto.quantity;
     await this.cartItemRepository.save(cartItem);
     return this.cartRepository.save(cart);
@@ -65,8 +64,8 @@ export class CartService {
 
   async removeItem(userId: number, cartItemId: number): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
-    const cartItemIndex = cart.items.findIndex(item => item.id === cartItemId);
-    if (cartItemIndex === -1) {
+    const cartItemIndex = cart.items.findIndex(item => item.id == cartItemId);
+    if (cartItemIndex == -1) {
       throw new NotFoundException('Cart item not found');
     }
 
