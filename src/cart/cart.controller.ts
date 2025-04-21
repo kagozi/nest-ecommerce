@@ -1,14 +1,18 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, Req, UseGuards, forwardRef } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateOrderDto } from '../orders/dto/create-order.dto';
+import { OrdersService } from '../orders/orders.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('cart')
 export class CartController {
-  constructor(private readonly cartService: CartService) {}
+  constructor(
+    private readonly cartService: CartService,
+    private readonly orderService: OrdersService, 
+  ) {}
 
   @Post('add')
   addItem(@Req() req, @Body() createCartItemDto: CreateCartItemDto) {
@@ -40,6 +44,18 @@ export class CartController {
     const userId = req.user.id;
     const cart = await this.cartService.getCartSummary(userId);
     // Integrate the order placement and payment here
+    const orderItems = cart.items.map(item => ({
+      productId: item.product.id,
+      quantity: item.quantity,
+      price: item.product.price, // assuming product has a price field
+    }));
+  
+    const orderDto: CreateOrderDto = {
+      userId,
+      items: orderItems,
+    };
+  
+    return await this.orderService.createOrder(orderDto);
     await this.cartService.clearCart(userId);
     return { message: 'Checkout successful' };
   }
