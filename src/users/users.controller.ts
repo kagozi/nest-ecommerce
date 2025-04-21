@@ -1,7 +1,7 @@
 
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Req, BadRequestException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto} from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
@@ -12,11 +12,17 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    try {
+      const user = await this.usersService.create(createUserDto);
+      return await this.authService.login(user.email, createUserDto.password);
+    } catch (error) {
+      throw new BadRequestException('Invalid Payload');
+    }
+
   }
 
   @Post('login')
@@ -27,25 +33,38 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: Request) {
-    return req.user;
+    try {
+      return req.user;
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
+
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
-  async updateProfile(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-    const user = req.user;
-    // Ignore ts error
-    // @ts-ignore
-    await this.usersService.update(user.id, updateUserDto); 
-     // @ts-ignore
-    return this.usersService.findOneByEmail(user.email);
+  async updateProfile(
+    @Req() req: any, // You can create a custom type for the user object if needed
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    const userId = req.user?.id;
+    const email = req.user?.email;
+
+    await this.usersService.update(userId, updateUserDto);
+    return this.usersService.findOneByEmail(email);
   }
+
 
   @UseGuards(JwtAuthGuard)
   @Delete('profile')
   async deleteProfile(@Req() req: Request) {
-    const user = req.user;
-    // @ts-ignore
-    await this.usersService.remove(user.id);
+    try {
+      const user = req.user;
+      // @ts-ignore
+      await this.usersService.remove(user.id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
   }
 }

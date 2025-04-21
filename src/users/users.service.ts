@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { CreateUserDto} from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt'
 
@@ -11,7 +11,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password, role } = createUserDto;
@@ -29,10 +29,26 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<void> {
-    const { password, profile } = updateUserDto;
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
-    await this.usersRepository.update(id, { ...(password && { password: hashedPassword }), ...(profile && { profile }) });
+    const updateData: Partial<User> = { ...updateUserDto };
+
+    if (updateUserDto.password) {
+      updateData.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    // Remove undefined or null values from updateData
+    Object.keys(updateData).forEach((key) => {
+      if (updateData[key as keyof typeof updateData] == null) {
+        delete updateData[key as keyof typeof updateData];
+      }
+    });
+
+    if (Object.keys(updateData).length === 0) {
+      throw new Error('No valid fields provided for update');
+    }
+
+    await this.usersRepository.update(id, updateData);
   }
+
 
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
@@ -43,5 +59,14 @@ export class UsersService {
       throw new Error(`User with ID ${id} not found`);
     }
     return user;
+  }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {    
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.update(user.id, { password: hashedPassword });
   }
 }

@@ -1,6 +1,12 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Currency } from '../product.entity';
 export class CreateProductDto {
+
+  @IsOptional()
+  @IsNumber()
+  userId: number;
+
+
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -10,7 +16,9 @@ export class CreateProductDto {
   description: string;
 
   @IsNotEmpty()
-  @IsNumber()
+  currency: Currency;
+
+  @IsNotEmpty()
   price: number;
 
   @IsNotEmpty()
@@ -24,4 +32,12 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsNumber()
   categoryId: number;
+
+  @IsOptional()
+  @IsString()
+  coverPhoto?: string;
+
+  @IsOptional()
+  @IsString()
+  images?: string[];
 }

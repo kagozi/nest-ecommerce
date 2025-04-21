@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { UserRole } from './dto/create-user.dto';
+import { Product } from '../products/product.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -8,12 +9,24 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ unique: true, nullable: true })
+  phoneNumber: string;
+
+  @Column({ default: '' })
+  firstName: string;
+
+  @Column({ default: '' })
+  lastName: string;
+
   @Column()
   password: string;
 
-  @Column()
-  role: string; // 'admin' or 'customer'
+  @Column({ default: UserRole.USER })
+  role: string; 
 
   @Column({ default: '' })
   profile: string;
+
+  @OneToMany(() => Product, product => product.user)
+  products: Product[];
 }
