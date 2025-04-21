@@ -19,4 +19,24 @@ export class TransactionService {
     async getWalletTransactions(walletId: number) {
         return this.transactionRepository.find({ where: { wallet: { id: walletId } }, order: { createdAt: 'DESC' } });
     }
+
+    async getTransactionById(id: number): Promise<Transaction> {
+        const transaction = await this.transactionRepository.findOne({ where: { id } });
+        if (!transaction) {
+            throw new Error('Transaction not found');
+        }
+        return transaction;
+    }
+
+    async getTransactionsByType(type: TransactionType): Promise<Transaction[]> {
+        return this.transactionRepository.find({ where: { type }, order: { createdAt: 'DESC' } });
+    }
+
+    async getTransactionsByWallet(walletId: number): Promise<Transaction[]> {
+        return this.transactionRepository.find({ where: { wallet: { id: walletId } }, order: { createdAt: 'DESC' } });
+    }
+
+    async getAllTransactions(): Promise<Transaction[]> {
+        return this.transactionRepository.find({ order: { createdAt: 'DESC' } });
+    }
 }

@@ -49,4 +49,15 @@ export class WalletService {
         await this.transactionService.logTransaction(wallet, amount, TransactionType.DEBIT, reference);
         return wallet;
     }
+
+    // Get wallet balance
+    async getWalletBalance(userId: number): Promise<number> {
+        const wallet = await this.getUserWallet(userId);
+        return wallet.balance;
+    }
+    // Get wallet transactions
+    async getWalletTransactions(userId: number) {
+        const wallet = await this.getUserWallet(userId);
+        return this.transactionService.getWalletTransactions(wallet.id);
+    }
 }
