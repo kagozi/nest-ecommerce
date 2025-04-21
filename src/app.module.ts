@@ -22,13 +22,14 @@ import { Notification } from './notifications/notifications.entity';
 import { WalletModule } from './wallet/wallet.module';
 import { Wallet } from './wallet/wallet.entity';
 import { TransactionModule } from './transaction/transaction.module';
+import { Transaction } from './transaction/transaction.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'data.db',
-      entities: [User, Product, Category, Order, OrderItem, Cart, CartItem, Review, Wishlist, Notification, Wallet],
+      entities: [User, Product, Category, Order, OrderItem, Cart, CartItem, Review, Wishlist, Notification, Wallet, Transaction],
       synchronize: true,
     }),
     UsersModule,
