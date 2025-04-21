@@ -1,23 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt'
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly walletService: WalletService,
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password, role } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.usersRepository.create({ email, password: hashedPassword, role });
-    return this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+    // Create wallet after user is saved
+    await this.walletService.createWalletForUser(savedUser);
+    return this.findOneById(savedUser.id)
   }
 
   async findOneByEmail(email: string): Promise<User> {
