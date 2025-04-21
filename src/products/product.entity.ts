@@ -23,7 +23,7 @@ export class Product {
   description: string;
 
   @Column('text')
-  currency: string;
+  currency: Currency;
 
 
   @Column()
