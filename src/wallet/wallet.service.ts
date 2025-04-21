@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Currency } from '../products/product.entity';
 import { UsersService } from '../users/users.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { TransactionType } from '../transaction/transaction.entity';
 
 @Injectable()
 export class WalletService {
@@ -28,24 +29,24 @@ export class WalletService {
         if (!user || !user.wallet) throw new NotFoundException('User wallet not found');
         return user.wallet;
     }
-    
-      async creditWallet(userId: number, amount: number, reference: string) {
+
+    async creditWallet(userId: number, amount: number, reference: string) {
         const wallet = await this.getUserWallet(userId);
         wallet.balance += amount;
         await this.walletRepository.save(wallet);
-    
-        // await this.transactionService.logTransaction(wallet, amount, TransactionType.CREDIT, reference);
+
+        await this.transactionService.logTransaction(wallet, amount, TransactionType.CREDIT, reference);
         return wallet;
-      }
-    
-    //   async debitWallet(userId: number, amount: number, reference: string) {
-    //     const wallet = await this.getUserWallet(userId);
-    //     if (wallet.balance < amount) throw new Error('Insufficient balance');
-    
-    //     wallet.balance -= amount;
-    //     await this.walletRepo.save(wallet);
-    
-    //     await this.transactionService.logTransaction(wallet, amount, TransactionType.DEBIT, reference);
-    //     return wallet;
-    //   }
+    }
+
+    async debitWallet(userId: number, amount: number, reference: string) {
+        const wallet = await this.getUserWallet(userId);
+        if (wallet.balance < amount) throw new Error('Insufficient balance');
+
+        wallet.balance -= amount;
+        await this.walletRepository.save(wallet);
+
+        await this.transactionService.logTransaction(wallet, amount, TransactionType.DEBIT, reference);
+        return wallet;
+    }
 }
