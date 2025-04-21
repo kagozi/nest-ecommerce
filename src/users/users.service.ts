@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -61,7 +61,7 @@ export class UsersService {
   async findOneById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
-      throw new Error(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
   }
@@ -69,7 +69,7 @@ export class UsersService {
   async resetPassword(email: string, newPassword: string): Promise<void> {    
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user) {
-      throw new Error(`User with email ${email} not found`);
+      throw new NotFoundException(`User with email ${email} not found`);
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.usersRepository.update(user.id, { password: hashedPassword });
