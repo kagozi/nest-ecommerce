@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
 import { UserRole } from './dto/create-user.dto';
 import { Product } from '../products/product.entity';
+import { Wallet } from '../wallet/wallet.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -29,4 +30,7 @@ export class User {
 
   @OneToMany(() => Product, product => product.user)
   products: Product[];
+
+  @OneToOne(() => Wallet, wallet => wallet.user, { cascade: true, eager: true })
+  wallet: Wallet;
 }
