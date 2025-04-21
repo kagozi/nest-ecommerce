@@ -74,4 +74,10 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.usersRepository.update(user.id, { password: hashedPassword });
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    return user || null;
+  }
+  
 }
