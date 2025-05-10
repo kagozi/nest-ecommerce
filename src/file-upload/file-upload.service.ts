@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
+
 // validate file types
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
 const maxSize = 5 * 1024 * 1024;
+
 function sanitizeFilename(file: Express.Multer.File): string {
   const ext = path.extname(file.originalname);
   const base = path.basename(file.originalname, ext)
