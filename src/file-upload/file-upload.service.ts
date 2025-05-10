@@ -1,7 +1,22 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
- // validate file types
- const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
- const maxSize = 5 * 1024 * 1024;
+import * as path from 'path';
+import * as fs from 'fs';
+// validate file types
+const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+const maxSize = 5 * 1024 * 1024;
+function sanitizeFilename(file: Express.Multer.File): string {
+  const ext = path.extname(file.originalname);
+  const base = path.basename(file.originalname, ext)
+    .replace(/\s+/g, '-')              // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9-_]/g, '');   // remove special characters
+  const newName = `${Date.now()}-${base}${ext}`;
+  const newPath = path.join(path.dirname(file.path), newName);
+
+  // Rename the file on disk
+  fs.renameSync(file.path, newPath);
+
+  return newPath;
+}
 @Injectable()
 
 export class FileUploadService {
@@ -18,12 +33,16 @@ export class FileUploadService {
     if (file.size > maxSize) {
       throw new BadRequestException('file is too large!');
     }
+    const sanitizedPath = sanitizeFilename(file);
 
-    return { message: 'File uploaded successfully', filePath: file.path };
+    return {
+      message: 'File uploaded successfully',
+      filePath: sanitizedPath,
+    };
   }
 
   async uploadMultipleFiles(files: Express.Multer.File[]) {
-    console.log({files: files});
+    console.log({ files: files });
     if (!files || files.length === 0) {
       throw new BadRequestException('no files uploaded');
     }
@@ -40,7 +59,11 @@ export class FileUploadService {
         throw new BadRequestException(`file is too large: ${file.originalname}`);
       }
     }
+    const sanitizedPaths = files.map(file => sanitizeFilename(file));
 
-    return { message: 'Files uploaded successfully', filePaths: files.map(file => file.path) };
+    return {
+      message: 'Files uploaded successfully',
+      filePaths: sanitizedPaths,
+    };
   }
 }
