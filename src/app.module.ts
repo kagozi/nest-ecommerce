@@ -23,6 +23,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { Wallet } from './wallet/wallet.entity';
 import { TransactionModule } from './transaction/transaction.module';
 import { Transaction } from './transaction/transaction.entity';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { Transaction } from './transaction/transaction.entity';
     WishlistModule,
     NotificationsModule,
     WalletModule,
-    TransactionModule],
+    TransactionModule,
+    FileUploadModule],
   controllers: [AppController],
   providers: [AppService],
 })
