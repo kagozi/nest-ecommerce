@@ -7,12 +7,14 @@ import { PaystackService } from './paystack/paystack.service';
 import { PaystackWebhookController } from './paystack/paystack.webhook.controller';
 import { OrdersModule } from '../orders/orders.module';
 import { WalletModule } from '../wallet/wallet.module';
+import { CartModule } from '../cart/cart.module';
 
 @Module({
   imports: [
     HttpModule,
     OrdersModule,
     WalletModule,
+    CartModule
   ],
   controllers: [
     PaymentsController,
@@ -21,7 +23,6 @@ import { WalletModule } from '../wallet/wallet.module';
   providers: [
     PaymentsService,
     PaymentFactory,
-    // StripeService,
     PaystackService,
   ],
   exports: [PaymentsService],

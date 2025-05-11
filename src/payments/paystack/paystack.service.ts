@@ -3,6 +3,17 @@ import { HttpService } from '@nestjs/axios';
 import { IPaymentGateway } from '../interfaces/payment-gateway.interface';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { InitializeTransactionDto } from '../dto/initialize-transaction.dto';
+import { OrderStatus } from '../../orders/order.entity';
+import {
+  PaystackCallbackDto,
+  PaystackCreateTransactionDto,
+  PaystackCreateTransactionResponseDto,
+  PaystackMetadata,
+  PaystackVerifyTransactionResponseDto,
+  PaystackWebhookDto,
+} from '../dto/paystack.dto';
+
 @Injectable()
 export class PaystackService implements IPaymentGateway {
     constructor(
@@ -16,7 +27,7 @@ export class PaystackService implements IPaymentGateway {
         items: any[];
         customerEmail: string;
     }): Promise<{ url: string; sessionId: string }> {
-        const paystackAmount = data.amount * 100; // Paystack requires amount in kobo
+        const paystackAmount = data.amount * 100; 
 
         const payload = {
             email: data.customerEmail,
@@ -24,12 +35,13 @@ export class PaystackService implements IPaymentGateway {
             metadata: {
                 orderId: data.orderId,
             },
-            callback_url: `${this.configService.get<string>('FRONTEND_URL')}/checkout-success`, // or /webhook
+            callback_url: `${this.configService.get<string>('PAYSTACK_CALLBACK_URL')}`,
         };
 
         try {
             const response = await firstValueFrom(
-                this.httpService.post(`${this.configService.get<string>('BASE_URL')}/transaction/initialize`, payload, {
+                this.httpService.post(`${this.configService.get<string>('BASE_URL')}/transaction/initialize`, 
+                payload, {
                     headers: {
                         Authorization: `Bearer ${this.configService.get<string>('PAYSTACK_SECRET_KEY')}`,
                         'Content-Type': 'application/json',
@@ -46,9 +58,5 @@ export class PaystackService implements IPaymentGateway {
             console.error('Paystack error:', err?.response?.data || err.message);
             throw new BadRequestException('Paystack payment initialization failed');
         }
-    }
-
-    async initializeTransaction(){
-        // 
     }
 }
