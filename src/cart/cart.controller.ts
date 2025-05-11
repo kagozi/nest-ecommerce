@@ -11,8 +11,8 @@ import { OrdersService } from '../orders/orders.service';
 export class CartController {
   constructor(
     private readonly cartService: CartService,
-    private readonly orderService: OrdersService, 
-  ) {}
+    private readonly orderService: OrdersService,
+  ) { }
 
   @Post('add')
   addItem(@Req() req, @Body() createCartItemDto: CreateCartItemDto) {
@@ -22,7 +22,7 @@ export class CartController {
 
   @Patch('update/:itemId')
   updateItem(@Req() req, @Param('itemId') itemId: number, @Body() updateCartItemDto: UpdateCartItemDto) {
-    console.log({itemId: itemId})
+    console.log({ itemId: itemId })
     const userId = req.user.id;
     return this.cartService.updateItem(userId, itemId, updateCartItemDto);
   }
@@ -49,21 +49,21 @@ export class CartController {
       quantity: item.quantity,
       price: item.product.price, // assuming product has a price field
     }));
-  
+
     const orderDto: CreateOrderDto = {
       userId,
       items: orderItems,
     };
-  
+
     const order = await this.orderService.createOrder(orderDto);
 
-    // // Create a transaction for the order
-    // const transaction = await this.transactionService.createTransaction({
-    //   userId,
-    //   amount: order.total,
-    //   type: TransactionType.PAYMENT,
-    //   reference: `Order #${order.id}`,
-    // });
+    // const payment = await this.paymentsService.initiatePayment(
+    //   gateway,
+    //   order.id,
+    //   total,
+    //   orderItems,
+    //   req.user.email,
+    // );
 
     await this.cartService.clearCart(userId);
     return { message: 'Checkout successful' };

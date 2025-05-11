@@ -21,7 +21,9 @@
   },
   "dependencies": {
     "@h1dd3nsn1p3r/pdf-invoice": "^1.0.10",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.13",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.13",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "*",
