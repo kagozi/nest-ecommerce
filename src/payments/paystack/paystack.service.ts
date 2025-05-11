@@ -6,12 +6,12 @@ import { ConfigService } from '@nestjs/config';
 import { InitializeTransactionDto } from '../dto/initialize-transaction.dto';
 import { OrderStatus } from '../../orders/order.entity';
 import {
-  PaystackCallbackDto,
-  PaystackCreateTransactionDto,
-  PaystackCreateTransactionResponseDto,
-  PaystackMetadata,
-  PaystackVerifyTransactionResponseDto,
-  PaystackWebhookDto,
+    PaystackCallbackDto,
+    PaystackCreateTransactionDto,
+    PaystackCreateTransactionResponseDto,
+    PaystackMetadata,
+    PaystackVerifyTransactionResponseDto,
+    PaystackWebhookDto,
 } from '../dto/paystack.dto';
 
 @Injectable()
@@ -27,7 +27,11 @@ export class PaystackService implements IPaymentGateway {
         items: any[];
         customerEmail: string;
     }): Promise<{ url: string; sessionId: string }> {
-        const paystackAmount = data.amount * 100; 
+        if (!data.amount || !data.customerEmail || !data.orderId) {
+            throw new BadRequestException('Missing required checkout data');
+        }
+
+        const paystackAmount = data.amount * 100;
 
         const payload = {
             email: data.customerEmail,
@@ -35,28 +39,39 @@ export class PaystackService implements IPaymentGateway {
             metadata: {
                 orderId: data.orderId,
             },
-            callback_url: `${this.configService.get<string>('PAYSTACK_CALLBACK_URL')}`,
+            callback_url: this.configService.get<string>('PAYSTACK_CALLBACK_URL'),
         };
+
+        const baseUrl = this.configService.get<string>('PAYSTACK_BASE_URL');
+        const secretKey = this.configService.get<string>('PAYSTACK_SECRET_KEY');
+
+        if (!baseUrl || !secretKey) {
+            throw new Error('Paystack configuration is missing');
+        }
 
         try {
             const response = await firstValueFrom(
-                this.httpService.post(`${this.configService.get<string>('BASE_URL')}/transaction/initialize`, 
-                payload, {
+                this.httpService.post(`${baseUrl}/transaction/initialize`, payload, {
                     headers: {
-                        Authorization: `Bearer ${this.configService.get<string>('PAYSTACK_SECRET_KEY')}`,
+                        Authorization: `Bearer ${secretKey}`,
                         'Content-Type': 'application/json',
                     },
                 }),
             );
 
-            const responseData = (response as { data: { data: { authorization_url: string; reference: string } } }).data?.data;
+            const { authorization_url, reference } = response.data?.data || {};
+            if (!authorization_url || !reference) {
+                throw new BadRequestException('Invalid Paystack response');
+            }
+
             return {
-                url: responseData.authorization_url,
-                sessionId: responseData.reference,
+                url: authorization_url,
+                sessionId: reference,
             };
         } catch (err) {
             console.error('Paystack error:', err?.response?.data || err.message);
             throw new BadRequestException('Paystack payment initialization failed');
         }
     }
+
 }

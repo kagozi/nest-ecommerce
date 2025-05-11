@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Currency } from '../product.entity';
 export class CreateProductDto {
 
@@ -6,6 +6,13 @@ export class CreateProductDto {
   @IsNumber()
   userId: number;
 
+  @IsOptional()
+  @IsNumber()
+  sellingPrice: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isApproved: boolean;
 
   @IsNotEmpty()
   @IsString()
