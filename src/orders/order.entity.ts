@@ -5,6 +5,7 @@ import { Product } from '../products/product.entity';
 export enum OrderStatus {
   PLACED = 'placed',
   PAID = 'paid',
+  PARTIALLY_PAID = 'partially_paid',
   SHIPPED = 'shipped',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
