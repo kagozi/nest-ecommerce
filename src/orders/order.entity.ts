@@ -2,6 +2,15 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDat
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 
+export enum OrderStatus {
+  PLACED = 'placed',
+  PAID = 'paid',
+  SHIPPED = 'shipped',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+  RETURNED = 'returned',
+}
+
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
@@ -12,7 +21,7 @@ export class Order {
   user: User;
 
   @Column()
-  status: string; // 'placed', 'shipped', 'delivered', 'cancelled', 'returned'
+  status: OrderStatus;
 
   @Column('decimal')
   total: number;

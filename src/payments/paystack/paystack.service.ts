@@ -47,4 +47,8 @@ export class PaystackService implements IPaymentGateway {
             throw new BadRequestException('Paystack payment initialization failed');
         }
     }
+
+    async initializeTransaction(){
+        // 
+    }
 }

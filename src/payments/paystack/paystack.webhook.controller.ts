@@ -11,6 +11,7 @@ import { OrdersService } from '../../orders/orders.service';
 import { WalletService } from '../../wallet/wallet.service';
 import { Request } from 'express';
 import * as crypto from 'crypto';
+import { OrderStatus } from 'src/orders/order.entity';
 
 @Controller('webhooks/paystack')
 export class PaystackWebhookController {
@@ -49,7 +50,7 @@ export class PaystackWebhookController {
         const order = await this.ordersService.findOrderById(orderId);
         if (!order || order.status === 'paid') return { received: true };
 
-        await this.ordersService.updateOrderStatus(orderId, { status: 'paid' });
+        await this.ordersService.updateOrderStatus(orderId, { status: OrderStatus.PAID });
 
         // Credit vendors
         for (const item of order.items) {
