@@ -49,7 +49,6 @@ export class OrdersService {
       total,
       items: orderItems,
     });
-    return order
     return this.ordersRepository.save(order);
   }
 

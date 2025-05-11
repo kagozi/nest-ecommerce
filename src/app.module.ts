@@ -24,6 +24,7 @@ import { Wallet } from './wallet/wallet.entity';
 import { TransactionModule } from './transaction/transaction.module';
 import { Transaction } from './transaction/transaction.entity';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -44,7 +45,8 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     NotificationsModule,
     WalletModule,
     TransactionModule,
-    FileUploadModule],
+    FileUploadModule,
+    PaymentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -55,7 +55,16 @@ export class CartController {
       items: orderItems,
     };
   
-    return await this.orderService.createOrder(orderDto);
+    const order = await this.orderService.createOrder(orderDto);
+
+    // // Create a transaction for the order
+    // const transaction = await this.transactionService.createTransaction({
+    //   userId,
+    //   amount: order.total,
+    //   type: TransactionType.PAYMENT,
+    //   reference: `Order #${order.id}`,
+    // });
+
     await this.cartService.clearCart(userId);
     return { message: 'Checkout successful' };
   }
