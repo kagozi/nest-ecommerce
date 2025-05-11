@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
@@ -34,6 +34,11 @@ export class ProductsService {
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+    // If the user is an admin, set the sellling price equal to the cost price and set the status to approved
+    if (user.role === 'admin') {
+      rest.sellingPrice = rest.price;
+      rest.isApproved = true;
     }
 
     const product = this.productsRepository.create({
@@ -75,6 +80,15 @@ export class ProductsService {
 
   async approveProduct(id: number, approveDTO: ApproveDTO): Promise<Product> {
     const product = await this.findProductById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    // check if the selling price is lower than the cost price
+    if (approveDTO.sellingPrice < product.price) {
+      throw new BadRequestException('Selling price cannot be lower than cost price');
+    }
+
     Object.assign(product, approveDTO);
     return this.productsRepository.save(product);
   }
@@ -118,7 +132,6 @@ export class ProductsService {
   }
 
   async searchProducts(query: string): Promise<any> {
-    console.log({query:query})
     // return query
     return await this.productsRepository.createQueryBuilder('product')
       .where('product.name LIKE :query', { query: `%${query}%` })
@@ -126,25 +139,36 @@ export class ProductsService {
       .getMany();
   }
 
-  async filterProducts(categoryId?: number, minPrice?: number, maxPrice?: number, minRating?: number): Promise<Product[]> {
-    let queryBuilder = this.productsRepository.createQueryBuilder('product');
+  async filterProducts(
+    categoryId?: number,
+    minPrice?: number,
+    maxPrice?: number,
+    minRating?: number,
+    skip = 0,
+    limit = 20,
+  ): Promise<Product[]> {
+    const queryBuilder = this.productsRepository.createQueryBuilder('product');
 
     if (categoryId) {
-      queryBuilder = queryBuilder.andWhere('product.category.id = :categoryId', { categoryId });
+      queryBuilder.andWhere('product.category.id = :categoryId', { categoryId });
     }
 
     if (minPrice) {
-      queryBuilder = queryBuilder.andWhere('product.price >= :minPrice', { minPrice });
+      queryBuilder.andWhere('product.price >= :minPrice', { minPrice });
     }
 
     if (maxPrice) {
-      queryBuilder = queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice });
+      queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice });
     }
 
     if (minRating) {
-      queryBuilder = queryBuilder.andWhere('product.rating >= :minRating', { minRating });
+      queryBuilder.andWhere('product.rating >= :minRating', { minRating });
     }
 
-    return queryBuilder.getMany();
+    return queryBuilder
+      .skip(skip)
+      .take(limit)
+      .getMany();
   }
+
 }

@@ -9,6 +9,7 @@ import { OrdersModule } from '../orders/orders.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Cart, CartItem]),  forwardRef(() => UsersModule), forwardRef(() => ProductsModule), forwardRef(() => OrdersModule)],
   providers: [CartService,],
-  controllers: [CartController]
+  controllers: [CartController],
+  exports: [CartService],
 })
 export class CartModule {}

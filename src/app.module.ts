@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -24,9 +25,14 @@ import { Wallet } from './wallet/wallet.entity';
 import { TransactionModule } from './transaction/transaction.module';
 import { Transaction } from './transaction/transaction.entity';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'data.db',
@@ -44,10 +50,11 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     NotificationsModule,
     WalletModule,
     TransactionModule,
-    FileUploadModule],
+    FileUploadModule,
+    PaymentsModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
 
 

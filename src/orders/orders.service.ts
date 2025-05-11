@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderItem } from './order.entity';
+import { Order, OrderItem, OrderStatus } from './order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UsersService } from '../users/users.service';
@@ -45,11 +45,10 @@ export class OrdersService {
 
     const order = this.ordersRepository.create({
       user,
-      status: 'placed',
+      status: OrderStatus.PLACED,
       total,
       items: orderItems,
     });
-    return order
     return this.ordersRepository.save(order);
   }
 

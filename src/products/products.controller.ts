@@ -29,7 +29,7 @@ export class ProductsController {
 
     return this.productsService.createProduct(createProductDto, userId);
   }
- 
+
 
   @Get('product/:id')
   async findProductById(@Param('id') id: number) {
@@ -103,7 +103,19 @@ export class ProductsController {
     @Query('minPrice') minPrice?: number,
     @Query('maxPrice') maxPrice?: number,
     @Query('minRating') minRating?: number,
+    @Query('skip') skip: number = 0,
+    @Query('limit') limit: number = 20,
   ) {
-    return this.productsService.filterProducts(categoryId, minPrice, maxPrice, minRating);
+    if (Number(limit) > 20) {
+      limit = 20;
+    }
+    return this.productsService.filterProducts(
+      categoryId,
+      minPrice,
+      maxPrice,
+      minRating,
+      Number(skip),
+      Number(limit),
+    );
   }
 }
