@@ -6,10 +6,17 @@ import { Cart, CartItem } from './cart.entity'; // Adjust the import path as nec
 import { UsersModule } from '../users/users.module';
 import { ProductsModule } from '../products/products.module';
 import { OrdersModule } from '../orders/orders.module';
+import { PaymentsModule } from 'src/payments/payments.module';
 @Module({
-  imports: [TypeOrmModule.forFeature([Cart, CartItem]),  forwardRef(() => UsersModule), forwardRef(() => ProductsModule), forwardRef(() => OrdersModule)],
+  imports: [
+    TypeOrmModule.forFeature([Cart, CartItem]),
+    forwardRef(() => UsersModule),
+    forwardRef(() => ProductsModule),
+    forwardRef(() => OrdersModule),
+    forwardRef(() => PaymentsModule)
+  ],
   providers: [CartService,],
   controllers: [CartController],
   exports: [CartService],
 })
-export class CartModule {}
+export class CartModule { }

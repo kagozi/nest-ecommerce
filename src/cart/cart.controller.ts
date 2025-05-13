@@ -1,10 +1,11 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, Req, UseGuards, forwardRef } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, Req, UseGuards, forwardRef, BadRequestException } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateOrderDto } from '../orders/dto/create-order.dto';
 import { OrdersService } from '../orders/orders.service';
+import { PaymentsService } from '../payments/payments.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('cart')
@@ -12,6 +13,7 @@ export class CartController {
   constructor(
     private readonly cartService: CartService,
     private readonly orderService: OrdersService,
+    private readonly paymentsService: PaymentsService,
   ) { }
 
   @Post('add')
@@ -57,15 +59,15 @@ export class CartController {
 
     const order = await this.orderService.createOrder(orderDto);
 
-    // const payment = await this.paymentsService.initiatePayment(
-    //   gateway,
-    //   order.id,
-    //   total,
-    //   orderItems,
-    //   req.user.email,
-    // );
-
-    await this.cartService.clearCart(userId);
-    return { message: 'Checkout successful' };
+    const payment = await this.paymentsService.initiatePayment(
+      req.gateway || 'paystack',
+      order.id,
+      order.total,
+      req.user.email,
+    );
+    if (!payment) {
+      throw new BadRequestException('Payment initiation failed');
+    }
+    return { message: 'Payment Initialized' };
   }
 }

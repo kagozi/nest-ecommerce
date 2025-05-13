@@ -3,16 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { IPaymentGateway } from '../interfaces/payment-gateway.interface';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { InitializeTransactionDto } from '../dto/initialize-transaction.dto';
-import { OrderStatus } from '../../orders/order.entity';
-import {
-    PaystackCallbackDto,
-    PaystackCreateTransactionDto,
-    PaystackCreateTransactionResponseDto,
-    PaystackMetadata,
-    PaystackVerifyTransactionResponseDto,
-    PaystackWebhookDto,
-} from '../dto/paystack.dto';
 
 @Injectable()
 export class PaystackService implements IPaymentGateway {
@@ -39,7 +29,7 @@ export class PaystackService implements IPaymentGateway {
             metadata: {
                 orderId: data.orderId,
             },
-            callback_url: this.configService.get<string>('PAYSTACK_CALLBACK_URL'),
+            callback_url: `${this.configService.get<string>('BASE_URL')}/webhooks/paystack`,
         };
 
         const baseUrl = this.configService.get<string>('PAYSTACK_BASE_URL');

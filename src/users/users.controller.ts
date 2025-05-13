@@ -33,6 +33,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: Request) {
+    console.log(req);
     try {
       return req.user;
     } catch (error) {
